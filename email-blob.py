@@ -3,7 +3,7 @@ import email
 from azure.storage.blob import BlobServiceClient, BlobClient
 import os
 import zipfile
-import tempfile
+
 
 # Email Configuration
 EMAIL_HOST = 'imap.gmail.com'
@@ -38,27 +38,24 @@ if result == 'OK':
                     continue
                 filename = part.get_filename()
                 if filename.endswith('.zip'):
-                    # Download zip attachment
-                    zip_data = part.get_payload(decode=True)
+    # Download zip attachment
+    zip_data = part.get_payload(decode=True)
 
-                    # Upload zip attachment to Azure Blob Storage
-                    blob_client = container_client.get_blob_client(filename)
-                    with blob_client as blob:
-                        blob.upload_blob(zip_data)
+    # Upload zip attachment to Azure Blob Storage
+    blob_client = container_client.get_blob_client(filename)
+    with blob_client as blob:
+        blob.upload_blob(zip_data)
 
-                    # Unzip the attachment
-                    with tempfile.TemporaryDirectory() as tmp_dir:
-                        zip_file_path = os.path.join(tmp_dir, filename)
-                        with open(zip_file_path, 'wb') as f:
-                            f.write(zip_data)
-                        with zipfile.ZipFile(zip_file_path, 'r') as zip_ref:
-                            zip_ref.extractall(tmp_dir)
+    # Unzip the attachment
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        zip_file_path = os.path.join(tmp_dir, filename)
+        with open(zip_file_path, 'wb') as f:
+            f.write(zip_data)
+        with zipfile.ZipFile(zip_file_path, 'r') as zip_ref:
+            zip_ref.extractall(tmp_dir)
 
-                        # Copy unzipped files to Azure App Service (adjust as needed)
-                        # Replace this section with code to copy files to Azure App Service
-                        # For example, you might use Azure CLI or Azure SDK for Python
-                        # to upload files to your App Service
 
+                       
 # Disconnect from Email Server
 mail.close()
 mail.logout()
