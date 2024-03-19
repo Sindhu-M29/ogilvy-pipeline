@@ -1,0 +1,35 @@
+variables:
+  STORAGE_CONNECTION_STRING: 'Connection-string'
+
+trigger:
+  - none  # Disable automatic trigger
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '3.11'
+      addToPath: true
+
+  - script: pip install imaplib azure-storage-blob
+    displayName: 'Install dependencies'
+
+  - script: 
+      python email-blob.py
+    displayName: 'Connect Email to Blob'
+
+  - script: 
+      python blob-appservice.py
+    displayName: 'Connect Blob to App Service'
+
+  - task: AzureCLI@2
+    inputs:
+      azureSubscription: 'AZUREPWS'
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+        # Azure CLI command to deploy files from Azure Blob Storage to Azure App Service
+        az webapp deployment source config --name Ogilvy-pipeline --resource-group sind-pipeline --repo-url https://ogilvypipesa.blob.core.windows.net/attachments?sp=racwdl&st=2024-03-19T06:49:41Z&se=2024-03-19T14:49:41Z&spr=https&sv=2022-11-02&sr=c&sig=GbUXGfcTgcKBLcqxEqcLMgL3zwCIYSxL07lOiLOQ8rM%3D 
+    displayName: 'Deploy from Blob Storage to App Service'
