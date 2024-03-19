@@ -26,7 +26,7 @@ steps:
 
   - task: AzureCLI@2
     inputs:
-      azureSubscription: 'AZUREPWS'
+      azureSubscription: 'ogilvy-connection'
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
       inlineScript: |
