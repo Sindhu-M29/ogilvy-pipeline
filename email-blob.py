@@ -2,14 +2,15 @@ import imaplib
 import email
 from azure.storage.blob import BlobServiceClient, BlobClient
 import os
+import tempfile
 import zipfile
-
+import io
 
 # Email Configuration
 EMAIL_HOST = 'imap.gmail.com'
 EMAIL_USERNAME = 'sindhu.ilango@pennywisesolutions.com'
 EMAIL_FOLDER = 'INBOX'
-SUBJECT_KEYWORD = 'Ogilvy-latest-deployments'  
+SUBJECT_KEYWORD = 'Ogilvy-latest-deployments'
 
 # Azure Storage Configuration
 STORAGE_CONNECTION_STRING = os.getenv('STORAGE_CONNECTION_STRING')
@@ -38,24 +39,23 @@ if result == 'OK':
                     continue
                 filename = part.get_filename()
                 if filename.endswith('.zip'):
-    # Download zip attachment
-    zip_data = part.get_payload(decode=True)
+                    # Download zip attachment
+                    zip_data = part.get_payload(decode=True)
 
-    # Upload zip attachment to Azure Blob Storage
-    blob_client = container_client.get_blob_client(filename)
-    with blob_client as blob:
-        blob.upload_blob(zip_data)
+                    # Upload zip attachment to Azure Blob Storage
+                    zip_blob_name = webapp
+                    zip_blob_client = container_client.get_blob_client(zip_blob_name)
+                    zip_blob_client.upload_blob(zip_data)
 
-    # Unzip the attachment
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        zip_file_path = os.path.join(tmp_dir, filename)
-        with open(zip_file_path, 'wb') as f:
-            f.write(zip_data)
-        with zipfile.ZipFile(zip_file_path, 'r') as zip_ref:
-            zip_ref.extractall(tmp_dir)
+                    # Extract zip attachment
+                    with zipfile.ZipFile(io.BytesIO(zip_data), 'r') as zip_ref:
+                        # Upload extracted files to Azure Blob Storage
+                        for zip_info in zip_ref.infolist():
+                            with zip_ref.open(zip_info.filename) as file:
+                                extracted_blob_name = f"{filename[:-4]}/{zip_info.filename}"
+                                extracted_blob_client = container_client.get_blob_client(extracted_blob_name)
+                                extracted_blob_client.upload_blob(file)
 
-
-                       
 # Disconnect from Email Server
 mail.close()
 mail.logout()
