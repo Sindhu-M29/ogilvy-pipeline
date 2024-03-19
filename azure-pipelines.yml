@@ -13,7 +13,7 @@ steps:
       versionSpec: '3.11'
       addToPath: true
 
-  - script: pip install imaplib azure-storage-blob
+  - script: pip install imaplib azure-storage-blob azure-cli
     displayName: 'Install dependencies'
 
   - script: 
