@@ -2,7 +2,7 @@ variables:
   STORAGE_CONNECTION_STRING: 'Connection-string'
 
 trigger:
-  - none  # Disable automatic trigger
+  - none
 
 pool:
   vmImage: 'ubuntu-latest'
