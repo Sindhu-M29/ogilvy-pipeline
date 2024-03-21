@@ -13,14 +13,15 @@ steps:
       versionSpec: '3.11'
       addToPath: true
 
-  - script: pip install imaplib azure-storage-blob azure-cli
+  - script: |
+      pip install imaplib azure-storage-blob azure-cli
     displayName: 'Install dependencies'
 
-  - script: 
+  - script: |
       python email-blob.py
     displayName: 'Connect Email to Blob'
 
-  - script: 
+  - script: |
       python blob-appservice.py
     displayName: 'Connect Blob to App Service'
 
