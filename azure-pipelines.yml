@@ -14,7 +14,7 @@ steps:
       addToPath: true
 
   - script: |
-      pip install imaplib azure-storage-blob azure-cli
+      pip install azure-storage-blob azure-cli
     displayName: 'Install dependencies'
 
   - script: |
